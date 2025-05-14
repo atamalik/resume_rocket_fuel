@@ -1,9 +1,14 @@
+# More aggressive SQLite hack
+import sys
 try:
+    if 'sqlite3' in sys.modules:
+        del sys.modules['sqlite3'] # Try to remove it if it's already imported
     __import__('pysqlite3')
-    import sys
     sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-except ImportError:
-    # You can log a warning here if you want to know if this fails
+except Exception as e:
+    print('SQLite hack failed: ', e) # Log this exception to see if this block itself causes issues
+    # import logging
+    # logging.warning(f"SQLite hack failed: {e}")
     pass
 
 from resume_rocket_fuel.pipeline import pipeline_run
