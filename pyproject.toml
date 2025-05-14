@@ -1,0 +1,30 @@
+[project]
+name = "resume_rocket_fuel"
+version = "0.1.0"
+description = "A crew of AI agents to optimize your CV for specific job applications"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools]>=0.119.0,<1.0.0",
+    "streamlit",
+    "PyPDF2",
+    "markdown",
+    "fpdf2",
+    "markdown2",
+    "pdfkit",
+    "weasyprint"
+]
+
+[project.scripts]
+resume_rocket_fuel = "resume_rocket_fuel.main:run"
+run_crew = "resume_rocket_fuel.main:run"
+train = "resume_rocket_fuel.main:train"
+replay = "resume_rocket_fuel.main:replay"
+test = "resume_rocket_fuel.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"

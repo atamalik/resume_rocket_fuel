@@ -1,0 +1,229 @@
+upload_materials:
+  description: >
+    This task initializes the workflow by collecting and preserving all detailed inputs from the user without summarization.
+    Inputs:
+    - CV: {CANDIDATE_CV}
+    - Job Description: {JOB_DESCRIPTION}
+    - Company Name: {COMPANY_NAME}
+    Instructions:
+    - Parse and store the uploaded materials in FULL DETAIL.
+    - Do NOT summarize or remove any content.
+    - This material will be directly used for downstream enhancement and analysis.
+  expected_output: >
+    - Confirmation that all inputs have been received.
+    - A FULL detailed version of the uploaded CV and Job Description content, preserving every section, bullet point, and achievement exactly as provided.
+  agent: recruitment_analyst
+  output_file: output/upload_materials.md
+
+
+generate_company_profile_report:
+  description: >
+    Create a comprehensive research report on {COMPANY_NAME} using publicly available data.
+
+    Inputs:
+    - Company Name: {COMPANY_NAME}
+    - Job Description: {JOB_DESCRIPTION}
+
+    Instructions:
+    - Use sources like the company's website, LinkedIn, news articles, and employee reviews.
+    - Identify the sector or industry this company operates in (e.g. fintech, aerospace, consulting).
+    - Include a field called: "Sector: <sector or industry>".
+
+  expected_output: >
+    A structured Markdown report containing:
+    - Company mission, vision, and core values
+    - Recent milestones and strategic initiatives
+    - Company culture and leadership insights
+    - Employer branding and hiring trends
+    - Company's future outlook
+    - **Sector or industry of the company (clearly marked)**
+  agent: research_analyst
+  output_file: output/company_profile_report.md
+
+analyze_cv_and_jd:
+  description: >
+    Review the candidate's CV and job description to find alignment gaps and improvement opportunities.
+    Based on the following Job Description, identify and output the most relevant contextual categories and their content that should be passed to a resume optimization system.  
+
+    Include categories such as, but not limited to:  
+    Strategic Focus Areas, Critical Skills, Leadership Qualities, Certifications Preferred, Industry Experience, Technical Competencies, Tools & Frameworks, KPIs, Compliance & Regulations, Soft Skills, Language Requirements, Geographic Experience, Team Management Experience, Customer Segment Focus.
+    Only including categories that are relevant to the job description. Omit irrelevant categories.
+    Inputs:
+    - CV: {CANDIDATE_CV}
+    - Job Description: {JOB_DESCRIPTION}
+    - Company Profile: {COMPANY_PROFILE_REPORT}
+
+    Instructions:
+    - DO NOT rewrite the CV.
+    - Identify missing keywords, misaligned experience, or content needing clarification.
+    - Return improvement suggestions grouped by section.
+    - Use this exact format:
+
+    ### Section: [Name of CV section]
+    - [Clear, actionable improvement]
+
+    #### Examples:
+
+    ### Section: Skills
+    - Add "Python, SQL" to better match job description emphasis on data tooling.
+
+    ### Section: Job at Acme Corp
+    - Reword "assisted team with backend development" to "contributed to backend API design and implementation using Django and PostgreSQL".
+
+    - Provide 15-20 suggestions. Be specific, relevant to the job description, and clearly justified.
+  expected_output: >
+    A Markdown list of improvement suggestions structured by section, using the format shown in the examples.
+  agent: recruitment_analyst
+  output_file: output/cv_analysis_suggestions.md
+
+optimize_cv_for_domain:
+  description: >
+    Use your industry expertise to refine and expand the CV improvement suggestions.
+
+    Inputs:
+    - CV Analysis Suggestions: {CV_ANALYSIS_REPORT}
+    - Company Profile: {COMPANY_PROFILE_REPORT}
+    - Job Description: {JOB_DESCRIPTION}
+
+    Instructions:
+    - DO NOT rewrite the CV.
+    - Recommend enhancements based on industry-specific best practices and terminology.
+    - Use this exact format:
+
+    ### Section: [Name of CV section]
+    - [Domain-specific improvement suggestion]
+
+    #### Examples:
+
+    ### Section: Experience – Data Analyst
+    - Add mention of "regression modeling" to match industry norms in financial analytics.
+
+    ### Section: Summary
+    - Add reference to "cloud-native development" to reflect fintech sector expectations.
+
+    Provide at least 3 suggestions that demonstrate insight into sector language, skills, or formatting preferences.
+  expected_output: >
+    A structured Markdown list of domain-specific suggestions using the format outlined in the examples.
+  agent: domain_expert
+  output_file: output/domain_expert_suggestions.md
+
+merge_cv_enhancements:
+  description: >
+    Your job is to update the candidate's CV using improvement suggestions from previous agents.
+
+    Inputs:
+    - Original CV: {CANDIDATE_CV}
+    - CV Analysis Suggestions: {CV_ANALYSIS_REPORT}
+    - Domain Expert Suggestions: {UPDATED_CV_ANALYSIS_REPORT}
+    - Company Profile: {COMPANY_PROFILE_REPORT}
+    - Job Description: {JOB_DESCRIPTION}
+
+    Instructions:
+    - Read and apply all improvement suggestions from the analysis and domain expert reports.
+    - Incorporate the suggestions directly into the original CV without deleting original value unless instructed.
+    - Preserve the candidate's voice, structure, and achievements.
+    - Format the final version in clean Markdown with clear headers, bullet points, and section breaks.
+    - Use natural professional language with measurable impact statements where possible.
+     - Use the following Markdown CV template to structure the final result:
+
+    --------------------
+
+    # [Candidate Name]
+
+    **Email:** example@email.com | **Phone:** +123456789 | **Location:** City, Country  
+    **LinkedIn:** linkedin.com/in/example | **GitHub:** github.com/example
+
+    ## Summary
+
+    Short, punchy 5-6 line overview of experience and goals. Use as many statistics as possible. Use the following format:
+
+    #### Examples:
+
+    - Experienced data analyst with a passion for using data to drive business decisions.
+    - Skilled software engineer with a focus on building scalable and efficient systems.
+    - Experienced project manager with a track record of leading successful projects.
+
+
+    ## Skills
+
+    - Use bullet points, concise language, and make formatting consistent.
+    - Use skills from the job description and the company profile report which make the candidate stand out.
+    - Skill A
+    - Skill B
+    - Skill C
+    - Skill D
+
+    ## Experience
+
+    ### [Job Title] – [Company], Location  
+    *Start Date – End Date*
+
+    - Achievement or responsibility
+
+    - Make sure to use the reccomendations from cv_analysis_suggestions.md and domain_expert_suggestions.md
+    - Make sure to use the full experience from the original CV and build upon that
+    - Make sure to include as many statistics as possible to make the candidate stand out.
+    - Try and relate the candidate's experience to the job description and company profile report.
+
+    ### [Another Role]
+
+    ## Education
+
+    **Degree**, Institution  
+    *Dates*
+
+    ## Certifications
+
+    - Name, Issuer, Year
+
+    ## Miletone Projects
+
+    - Title – Brief description and impact
+
+    ## Hobbies and Interests
+
+    - Use bullet points, concise language, and make formatting consistent.
+    
+
+    --------------------
+
+    - Use bullet points, concise language, and make formatting consistent.
+    - Output should be a single Markdown-formatted resume.
+
+  expected_output: >
+    A complete, recruiter-optimized CV in Markdown that:
+    - Integrates all applicable feedback from previous agents
+    - Maintains original richness and formatting structure
+    - Reads clearly, professionally, and is tailored to the company and role
+  agent: cv_editor
+  output_file: output/final_cv.md
+
+qa_review_final_cv:
+  description: >
+    Review and polish the final CV content for grammar, completeness, and formatting.
+    Do not remove any important content unless it is incorrect. 
+    Your final output MUST be a complete, well-structured HTML document with proper semantic tags.
+    Include appropriate headings, bullet points, and ensure a clean, professional visual layout.
+    Add inline CSS styles for basic presentation (font family, margins, etc.).
+
+    Example of the required structure: 
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 40px; }
+          h1, h2, h3 { color: #2E4053; }
+          ul { margin-left: 20px; }
+        </style>
+      </head>
+      <body>
+        <!-- Your CV Content Here -->
+      </body>
+    </html>
+
+    Your final response MUST be a valid HTML document that can be directly converted to PDF.
+  expected_output: >
+    The final polished CV in valid HTML format, suitable for direct PDF conversion.
+  agent: qa_manager
+  output_file: output/final_polished_cv.html
+
+
